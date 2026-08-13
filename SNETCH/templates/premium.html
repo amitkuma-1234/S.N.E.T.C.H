@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>S.N.E.T.C.H · Premium</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: 'Inter', sans-serif; color: #e9e4ff;
+    background: radial-gradient(ellipse at top, #1b1035 0%, #0a0518 60%, #050310 100%);
+    min-height: 100vh; padding: 32px 20px 80px;
+  }
+  a.home-btn {
+    display: inline-flex; align-items: center; gap: 8px; color: #b9a6ff; text-decoration: none;
+    font-weight: 500; font-size: 0.9rem; margin-bottom: 24px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 {
+    font-size: 2.1rem; font-weight: 700; margin: 0 0 6px;
+    background: linear-gradient(135deg, #d4c6ff, #a88eff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .sub { color: #a89bd6; margin-bottom: 28px; font-size: 0.98rem; }
+
+  .status-banner {
+    background: rgba(168,142,255,0.08); border: 1px solid rgba(168,142,255,0.25); border-radius: 14px;
+    padding: 16px 20px; margin-bottom: 28px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .status-banner .crown { color: #ffd166; font-size: 1.4rem; }
+  .status-banner.none { border-color: rgba(255,255,255,0.1); }
+  .status-banner .txt strong { color: #fff; }
+  .status-banner small { color: #9d8fc9; display: block; margin-top: 2px; }
+
+  .cycle-toggle { display: inline-flex; background: rgba(255,255,255,0.06); border-radius: 999px; padding: 4px; margin-bottom: 26px; }
+  .cycle-toggle button {
+    border: none; background: transparent; color: #b9a6ff; padding: 9px 22px; border-radius: 999px;
+    font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: 0.2s;
+  }
+  .cycle-toggle button.active { background: linear-gradient(135deg, #8a6cff, #6a3ff5); color: #fff; }
+
+  .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; margin-bottom: 40px; }
+  .plan-card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 18px;
+    padding: 22px; display: flex; flex-direction: column; gap: 14px; position: relative; transition: 0.2s;
+  }
+  .plan-card:hover { border-color: rgba(168,142,255,0.4); transform: translateY(-2px); }
+  .plan-card .price { font-size: 2rem; font-weight: 800; color: #fff; }
+  .plan-card .price span { font-size: 0.95rem; color: #9d8fc9; font-weight: 500; }
+  .plan-card ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  .plan-card li { font-size: 0.88rem; color: #cfc4ff; display: flex; gap: 8px; align-items: center; }
+  .plan-card li i { color: #7ef2b0; }
+  .plan-card button {
+    margin-top: auto; background: linear-gradient(135deg, #8a6cff, #6a3ff5); border: none; color: #fff;
+    padding: 11px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.9rem;
+  }
+  .plan-card.current { border-color: #7ef2b0; }
+  .plan-card.current button { background: rgba(126,242,176,0.15); color: #7ef2b0; cursor: default; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(5,3,16,0.75); backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center; z-index: 999; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #150c2e; border: 1px solid rgba(168,142,255,0.3); border-radius: 18px; padding: 26px;
+    max-width: 420px; width: 100%;
+  }
+  .modal h3 { margin: 0 0 6px; color: #fff; }
+  .modal p { color: #a89bd6; font-size: 0.88rem; margin: 0 0 16px; }
+  .pay-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .pay-row .app-chip {
+    flex: 1; text-align: center; padding: 10px 6px; border-radius: 10px; background: rgba(255,255,255,0.06);
+    font-size: 0.82rem; color: #cfc4ff; border: 1px solid rgba(255,255,255,0.08);
+  }
+  .upi-box {
+    background: rgba(255,255,255,0.05); border: 1px dashed rgba(168,142,255,0.4); border-radius: 12px;
+    padding: 14px; text-align: center; margin-bottom: 16px;
+  }
+  .upi-box .num { font-size: 1.3rem; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
+  .upi-box small { color: #9d8fc9; }
+  .modal input {
+    width: 100%; padding: 11px 13px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05); color: #fff; font-size: 0.9rem; margin-bottom: 12px;
+  }
+  .modal .btn-row { display: flex; gap: 10px; }
+  .modal .btn-row button {
+    flex: 1; padding: 11px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; font-size: 0.88rem;
+  }
+  .modal .btn-primary { background: linear-gradient(135deg, #8a6cff, #6a3ff5); color: #fff; }
+  .modal .btn-cancel { background: rgba(255,255,255,0.07); color: #cfc4ff; }
+  .msg { font-size: 0.85rem; margin-top: 10px; min-height: 18px; }
+  .msg.ok { color: #7ef2b0; }
+  .msg.err { color: #ff8a8a; }
+
+  .history { margin-top: 10px; }
+  .history table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .history th, .history td { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.07); color: #cfc4ff; }
+  .history th { color: #9d8fc9; font-weight: 600; }
+  .badge { padding: 3px 9px; border-radius: 999px; font-size: 0.74rem; font-weight: 600; }
+  .badge.active { background: rgba(126,242,176,0.15); color: #7ef2b0; }
+  .badge.pending { background: rgba(255,209,102,0.15); color: #ffd166; }
+  .badge.rejected, .badge.expired, .badge.superseded { background: rgba(255,138,138,0.12); color: #ff8a8a; }
+
+  h2.section-title { font-size: 1.2rem; color: #fff; margin: 36px 0 14px; }
+
+  .admin-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.04); border-radius: 12px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+  .admin-row .btn-approve { background: #2fbf71; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  .admin-row .btn-reject { background: rgba(255,138,138,0.15); color: #ff8a8a; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="/" class="home-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+  <h1>S.N.E.T.C.H Premium</h1>
+  <div class="sub">Unlock Music Download, Video Download, Astro Insights & Media Download.</div>
+
+  <div id="statusBanner" class="status-banner none">
+    <i class="fas fa-crown crown"></i>
+    <div class="txt"><span id="statusText">Loading your plan…</span></div>
+  </div>
+
+  <div class="cycle-toggle">
+    <button id="btnMonthly" class="active">Monthly</button>
+    <button id="btnYearly">Yearly</button>
+  </div>
+
+  <div class="plans-grid" id="plansGrid"></div>
+
+  <div id="adminSection" style="display:none;">
+    <h2 class="section-title"><i class="fas fa-shield-halved"></i> Pending Payment Claims (Admin)</h2>
+    <div id="adminList"></div>
+  </div>
+
+  <h2 class="section-title">Your Payment History</h2>
+  <div class="history">
+    <table>
+      <thead><tr><th>Plan</th><th>Price</th><th>Txn Ref</th><th>Status</th><th>Requested</th><th>Expires</th></tr></thead>
+      <tbody id="historyBody"><tr><td colspan="6" style="color:#7c6ea8;">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal">
+    <h3 id="payPlanLabel">Plan</h3>
+    <p>Pay using PhonePe, Google Pay, or Paytm — then enter your transaction ID below.</p>
+    <div class="pay-row">
+      <div class="app-chip"><i class="fas fa-mobile-screen"></i><br>PhonePe</div>
+      <div class="app-chip"><i class="fab fa-google-pay"></i><br>Google Pay</div>
+      <div class="app-chip"><i class="fas fa-wallet"></i><br>Paytm</div>
+    </div>
+    <div class="upi-box">
+      <div class="num" id="payPhone">+91 9610087974</div>
+      <small id="payUpiId"></small>
+    </div>
+    <input type="text" id="payMethod" placeholder="Which app did you pay from? (e.g. PhonePe)" />
+    <input type="text" id="payRef" placeholder="Transaction ID / UTR number" />
+    <div class="btn-row">
+      <button class="btn-cancel" id="payCancel">Cancel</button>
+      <button class="btn-primary" id="payConfirm">I've Paid — Submit</button>
+    </div>
+    <div class="msg" id="payMsg"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const token = localStorage.getItem('snetch_access_token');
+  const authHeaders = token ? { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+  let cycle = 'monthly';
+  let plans = [];
+  let payment = {};
+  let selectedPlanId = null;
+  let isAdmin = false;
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function renderPlans() {
+    const grid = document.getElementById('plansGrid');
+    grid.innerHTML = '';
+    plans.filter(p => p.cycle === cycle).forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'plan-card';
+      card.innerHTML = `
+        <div class="price">₹${p.price} <span>/ ${p.cycle === 'monthly' ? 'month' : 'year'}</span></div>
+        <ul>${p.feature_labels.map(f => `<li><i class="fas fa-check-circle"></i> ${f}</li>`).join('')}</ul>
+        <button data-plan="${p.plan_id}">Choose Plan</button>
+      `;
+      card.querySelector('button').addEventListener('click', () => openPayModal(p));
+      grid.appendChild(card);
+    });
+  }
+
+  function openPayModal(plan) {
+    selectedPlanId = plan.plan_id;
+    document.getElementById('payPlanLabel').textContent = `${plan.label} — ₹${plan.price}/${plan.cycle === 'monthly' ? 'mo' : 'yr'}`;
+    document.getElementById('payPhone').textContent = payment.phone || '+91 9610087974';
+    document.getElementById('payUpiId').textContent = payment.upi_id ? `UPI ID: ${payment.upi_id}` : 'Search this number in your payment app';
+    document.getElementById('payMsg').textContent = '';
+    document.getElementById('payRef').value = '';
+    document.getElementById('payMethod').value = '';
+    document.getElementById('payModal').classList.add('open');
+  }
+
+  document.getElementById('payCancel').addEventListener('click', () => {
+    document.getElementById('payModal').classList.remove('open');
+  });
+
+  document.getElementById('payConfirm').addEventListener('click', async () => {
+    const ref = document.getElementById('payRef').value.trim();
+    const method = document.getElementById('payMethod').value.trim() || 'UPI';
+    const msgEl = document.getElementById('payMsg');
+    if (!token) { msgEl.textContent = 'Please sign in first.'; msgEl.className = 'msg err'; return; }
+    if (!ref) { msgEl.textContent = 'Enter your transaction ID / UTR.'; msgEl.className = 'msg err'; return; }
+    try {
+      const res = await fetch('/api/premium/claim', {
+        method: 'POST', headers: authHeaders,
+        body: JSON.stringify({ plan_id: selectedPlanId, payment_method: method, payment_ref: ref }),
+      });
+      const d = await res.json();
+      if (!res.ok) { msgEl.textContent = d.error || 'Something went wrong.'; msgEl.className = 'msg err'; return; }
+      msgEl.textContent = 'Submitted! Your plan activates once payment is verified.';
+      msgEl.className = 'msg ok';
+      loadHistory();
+      setTimeout(() => document.getElementById('payModal').classList.remove('open'), 1800);
+    } catch (e) {
+      msgEl.textContent = 'Network error. Please try again.'; msgEl.className = 'msg err';
+    }
+  });
+
+  document.getElementById('btnMonthly').addEventListener('click', () => {
+    cycle = 'monthly';
+    document.getElementById('btnMonthly').classList.add('active');
+    document.getElementById('btnYearly').classList.remove('active');
+    renderPlans();
+  });
+  document.getElementById('btnYearly').addEventListener('click', () => {
+    cycle = 'yearly';
+    document.getElementById('btnYearly').classList.add('active');
+    document.getElementById('btnMonthly').classList.remove('active');
+    renderPlans();
+  });
+
+  async function loadPlans() {
+    const res = await fetch('/api/premium/plans');
+    const d = await res.json();
+    plans = d.plans || [];
+    payment = d.payment || {};
+    renderPlans();
+  }
+
+  async function loadStatus() {
+    if (!token) {
+      document.getElementById('statusText').innerHTML = 'Sign in to see your plan.';
+      return;
+    }
+    const res = await fetch('/api/premium/status', { headers: authHeaders });
+    if (!res.ok) return;
+    const d = await res.json();
+    isAdmin = !!d.is_admin;
+    const banner = document.getElementById('statusBanner');
+    const text = document.getElementById('statusText');
+    if (d.subscription) {
+      banner.classList.remove('none');
+      text.innerHTML = `<strong>${d.subscription.label}</strong> is active <small>Expires ${fmtDate(d.subscription.expires_at)}</small>`;
+    } else {
+      banner.classList.add('none');
+      text.innerHTML = `<strong>No active plan.</strong> Premium lijiye and enjoy these features! <small>Choose a plan below to get started.</small>`;
+    }
+    if (isAdmin) {
+      document.getElementById('adminSection').style.display = 'block';
+      loadAdminPending();
+    }
+  }
+
+  async function loadHistory() {
+    if (!token) return;
+    const res = await fetch('/api/premium/history', { headers: authHeaders });
+    const body = document.getElementById('historyBody');
+    if (!res.ok) { body.innerHTML = '<tr><td colspan="6" style="color:#7c6ea8;">Sign in to see your history.</td></tr>'; return; }
+    const d = await res.json();
+    const rows = d.history || [];
+    if (!rows.length) { body.innerHTML = '<tr><td colspan="6" style="color:#7c6ea8;">No payments yet.</td></tr>'; return; }
+    body.innerHTML = rows.map(r => `
+      <tr>
+        <td>${r.label}</td>
+        <td>₹${r.price}</td>
+        <td>${r.payment_ref || '—'}</td>
+        <td><span class="badge ${r.status}">${r.status}</span></td>
+        <td>${fmtDate(r.requested_at)}</td>
+        <td>${fmtDate(r.expires_at)}</td>
+      </tr>
+    `).join('');
+  }
+
+  async function loadAdminPending() {
+    const res = await fetch('/api/premium/admin/pending', { headers: authHeaders });
+    if (!res.ok) return;
+    const d = await res.json();
+    const list = document.getElementById('adminList');
+    const rows = d.pending || [];
+    if (!rows.length) { list.innerHTML = '<div style="color:#7c6ea8;">No pending claims.</div>'; return; }
+    list.innerHTML = rows.map(r => `
+      <div class="admin-row">
+        <div>
+          <strong>${r.user_email}</strong> — ${r.label} (₹${r.price})<br>
+          <small style="color:#9d8fc9;">Ref: ${r.payment_ref} · via ${r.payment_method} · ${fmtDate(r.requested_at)}</small>
+        </div>
+        <div>
+          <button class="btn-approve" data-id="${r.id}">Approve</button>
+          <button class="btn-reject" data-id="${r.id}">Reject</button>
+        </div>
+      </div>
+    `).join('');
+    list.querySelectorAll('.btn-approve').forEach(b => b.addEventListener('click', () => adminAction('approve', b.dataset.id)));
+    list.querySelectorAll('.btn-reject').forEach(b => b.addEventListener('click', () => adminAction('reject', b.dataset.id)));
+  }
+
+  async function adminAction(action, claimId) {
+    await fetch(`/api/premium/admin/${action}`, {
+      method: 'POST', headers: authHeaders, body: JSON.stringify({ claim_id: Number(claimId) }),
+    });
+    loadAdminPending();
+    loadHistory();
+  }
+
+  loadPlans();
+  loadStatus();
+  loadHistory();
+})();
+</script>
+</body>
+</html>

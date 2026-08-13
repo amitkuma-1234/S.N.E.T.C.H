@@ -1,0 +1,3 @@
+SNETCH/models/*.pth
+SNETCH/.env
+.env

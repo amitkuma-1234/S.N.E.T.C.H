@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>S.N.E.T.C.H · Admin Dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: 'Inter', sans-serif; color: #e9e4ff;
+    background: radial-gradient(ellipse at top, #1b1035 0%, #0a0518 60%, #050310 100%);
+    min-height: 100vh; padding: 32px 20px 80px;
+  }
+  a.home-btn { display: inline-flex; align-items: center; gap: 8px; color: #b9a6ff; text-decoration: none; font-weight: 500; font-size: 0.9rem; margin-bottom: 24px; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 {
+    font-size: 2rem; font-weight: 700; margin: 0 0 6px; display:flex; align-items:center; gap:10px;
+    background: linear-gradient(135deg, #d4c6ff, #a88eff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .sub { color: #a89bd6; margin-bottom: 28px; font-size: 0.95rem; }
+  h2.section-title { font-size: 1.15rem; color: #fff; margin: 34px 0 14px; display:flex; align-items:center; gap:8px; }
+  .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  th { color: #9d8fc9; font-weight: 600; background: rgba(255,255,255,0.03); }
+  td { color: #cfc4ff; }
+  .badge { padding: 3px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 600; white-space: nowrap; }
+  .badge.active { background: rgba(126,242,176,0.15); color: #7ef2b0; }
+  .badge.pending { background: rgba(255,209,102,0.15); color: #ffd166; }
+  .badge.none { background: rgba(255,255,255,0.06); color: #9d8fc9; }
+  .badge.rejected, .badge.expired, .badge.superseded { background: rgba(255,138,138,0.12); color: #ff8a8a; }
+  .badge.admin { background: linear-gradient(135deg,#8a6cff,#6a3ff5); color: #fff; }
+  .admin-row { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: rgba(255,255,255,0.04); border-radius: 12px; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+  .btn-approve { background: #2fbf71; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  .btn-reject { background: rgba(255,138,138,0.15); color: #ff8a8a; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  .empty { color: #7c6ea8; padding: 16px; }
+  .stat-row { display: flex; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+  .stat { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 14px; padding: 16px 22px; min-width: 140px; }
+  .stat .n { font-size: 1.6rem; font-weight: 800; color: #fff; }
+  .stat .l { font-size: 0.8rem; color: #9d8fc9; }
+  .stat.live .n { color: #7ef2b0; }
+
+  .tool-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 18px 20px; margin-bottom: 16px; }
+  .tool-card h3 { margin: 0 0 12px; font-size: 1rem; color: #fff; }
+  .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .form-row input, .form-row select, .form-row textarea {
+    flex: 1; min-width: 160px; padding: 10px 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05); color: #fff; font-size: 0.88rem; font-family: inherit;
+  }
+  .form-row textarea { min-width: 100%; min-height: 80px; resize: vertical; }
+  .tool-card button {
+    background: linear-gradient(135deg, #8a6cff, #6a3ff5); border: none; color: #fff; padding: 10px 18px;
+    border-radius: 9px; font-weight: 600; cursor: pointer; font-size: 0.88rem;
+  }
+  .tool-card button.danger { background: rgba(255,138,138,0.18); color: #ff8a8a; }
+  .tool-msg { font-size: 0.83rem; margin-top: 8px; min-height: 16px; }
+  .tool-msg.ok { color: #7ef2b0; }
+  .tool-msg.err { color: #ff8a8a; }
+  .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .row-actions button { padding: 5px 10px; border-radius: 7px; border: none; font-size: 0.76rem; cursor: pointer; font-weight: 600; }
+  .row-actions .ban-temp { background: rgba(255,209,102,0.15); color: #ffd166; }
+  .row-actions .ban-perm { background: rgba(255,138,138,0.18); color: #ff8a8a; }
+  .row-actions .unban { background: rgba(126,242,176,0.15); color: #7ef2b0; }
+  .row-actions .mail { background: rgba(168,142,255,0.15); color: #b9a6ff; }
+  .badge.banned { background: rgba(255,138,138,0.18); color: #ff8a8a; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="/" class="home-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
+  <h1><i class="fas fa-shield-halved"></i> Admin Dashboard</h1>
+  <div class="sub">Every user's premium status, plus payment claims waiting on your approval.</div>
+
+  <div class="stat-row" id="statRow"></div>
+
+  <h2 class="section-title"><i class="fas fa-paper-plane"></i> Send Mail to a User</h2>
+  <div class="tool-card">
+    <div class="form-row">
+      <input type="email" id="mailTo" placeholder="User's email" />
+    </div>
+    <div class="form-row">
+      <input type="text" id="mailSubject" placeholder="Subject" />
+    </div>
+    <div class="form-row">
+      <textarea id="mailBody" placeholder="Message"></textarea>
+    </div>
+    <button id="mailSend">Send</button>
+    <div class="tool-msg" id="mailMsg"></div>
+  </div>
+
+  <h2 class="section-title"><i class="fas fa-hourglass-half"></i> Pending Payment Claims</h2>
+  <div id="adminList" class="card"></div>
+
+  <h2 class="section-title"><i class="fas fa-users"></i> All Users, Premium Status &amp; Bans</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>User</th><th>Plan</th><th>Status</th><th>Expires</th><th>Ban</th><th>Actions</th></tr></thead>
+      <tbody id="usersBody"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- BAN MODAL -->
+<div id="banModal" style="display:none; position:fixed; inset:0; background:rgba(5,3,16,0.78); backdrop-filter: blur(6px); align-items:center; justify-content:center; z-index:999; padding:20px;">
+  <div style="background:#150c2e; border:1px solid rgba(168,142,255,0.3); border-radius:16px; padding:24px; max-width:380px; width:100%;">
+    <h3 style="margin:0 0 12px; color:#fff;">Ban <span id="banTargetEmail"></span></h3>
+    <div class="form-row" id="banDurationRow">
+      <input type="number" id="banDurationValue" placeholder="Duration" min="1" style="max-width:110px;" />
+      <select id="banDurationUnit">
+        <option value="minutes">Minutes</option>
+        <option value="hours">Hours</option>
+        <option value="days">Days</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <input type="text" id="banReason" placeholder="Reason (shown to user)" />
+    </div>
+    <div class="tool-msg" id="banMsg"></div>
+    <div style="display:flex; gap:10px; margin-top:10px;">
+      <button onclick="document.getElementById('banModal').style.display='none'" style="flex:1; background:rgba(255,255,255,0.08); color:#cfc4ff;">Cancel</button>
+      <button id="banConfirm" class="danger" style="flex:1;">Confirm Ban</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const token = localStorage.getItem('snetch_access_token');
+  const headers = token ? { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } : {};
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  async function loadLiveStats() {
+    const res = await fetch('/api/premium/admin/live-stats', { headers });
+    if (!res.ok) return;
+    const d = await res.json();
+    document.getElementById('statRow').innerHTML = `
+      <div class="stat"><div class="n">${d.total_users}</div><div class="l">Total Registered Users</div></div>
+      <div class="stat live"><div class="n">${d.active_now}</div><div class="l">Active Right Now</div></div>
+    `;
+  }
+
+  document.getElementById('mailSend').addEventListener('click', async () => {
+    const email = document.getElementById('mailTo').value.trim();
+    const subject = document.getElementById('mailSubject').value.trim();
+    const message = document.getElementById('mailBody').value.trim();
+    const msgEl = document.getElementById('mailMsg');
+    if (!email || !subject || !message) { msgEl.textContent = 'Fill in all fields.'; msgEl.className = 'tool-msg err'; return; }
+    const res = await fetch('/api/premium/admin/send-mail', { method: 'POST', headers, body: JSON.stringify({ email, subject, message }) });
+    const d = await res.json();
+    if (!res.ok) { msgEl.textContent = d.error || 'Failed to send.'; msgEl.className = 'tool-msg err'; return; }
+    msgEl.textContent = 'Email sent!'; msgEl.className = 'tool-msg ok';
+    document.getElementById('mailTo').value = '';
+    document.getElementById('mailSubject').value = '';
+    document.getElementById('mailBody').value = '';
+  });
+
+  let banTargetEmail = null;
+  function openBanModal(email, permanent) {
+    banTargetEmail = email;
+    document.getElementById('banTargetEmail').textContent = email;
+    document.getElementById('banDurationRow').style.display = permanent ? 'none' : 'flex';
+    document.getElementById('banReason').value = '';
+    document.getElementById('banMsg').textContent = '';
+    document.getElementById('banConfirm').dataset.permanent = permanent ? '1' : '0';
+    document.getElementById('banModal').style.display = 'flex';
+  }
+
+  document.getElementById('banConfirm').addEventListener('click', async () => {
+    const permanent = document.getElementById('banConfirm').dataset.permanent === '1';
+    const reason = document.getElementById('banReason').value.trim();
+    const msgEl = document.getElementById('banMsg');
+    const body = { email: banTargetEmail, reason, ban_type: permanent ? 'permanent' : 'temporary' };
+    if (!permanent) {
+      body.duration_value = document.getElementById('banDurationValue').value;
+      body.duration_unit = document.getElementById('banDurationUnit').value;
+    }
+    const res = await fetch('/api/premium/admin/ban', { method: 'POST', headers, body: JSON.stringify(body) });
+    const d = await res.json();
+    if (!res.ok) { msgEl.textContent = d.error || 'Failed.'; msgEl.className = 'tool-msg err'; return; }
+    msgEl.textContent = 'Banned. Notification email sent.'; msgEl.className = 'tool-msg ok';
+    setTimeout(() => { document.getElementById('banModal').style.display = 'none'; loadUsers(); }, 900);
+  });
+
+  async function unbanUser(email) {
+    await fetch('/api/premium/admin/unban', { method: 'POST', headers, body: JSON.stringify({ email }) });
+    loadUsers();
+  }
+
+  async function loadPending() {
+    const res = await fetch('/api/premium/admin/pending', { headers });
+    const list = document.getElementById('adminList');
+    if (!res.ok) { list.innerHTML = '<div class="empty">Not authorized.</div>'; return []; }
+    const d = await res.json();
+    const rows = d.pending || [];
+    if (!rows.length) { list.innerHTML = '<div class="empty">No pending claims right now.</div>'; return rows; }
+    list.innerHTML = rows.map(r => `
+      <div class="admin-row">
+        <div>
+          <strong>${r.user_email}</strong> — ${r.label} (₹${r.price})<br>
+          <small style="color:#9d8fc9;">Ref: ${r.payment_ref} · via ${r.payment_method} · ${fmtDate(r.requested_at)}</small>
+        </div>
+        <div>
+          <button class="btn-approve" data-id="${r.id}">Approve</button>
+          <button class="btn-reject" data-id="${r.id}">Reject</button>
+        </div>
+      </div>
+    `).join('');
+    list.querySelectorAll('.btn-approve').forEach(b => b.addEventListener('click', () => adminAction('approve', b.dataset.id)));
+    list.querySelectorAll('.btn-reject').forEach(b => b.addEventListener('click', () => adminAction('reject', b.dataset.id)));
+    return rows;
+  }
+
+  async function adminAction(action, claimId) {
+    await fetch(`/api/premium/admin/${action}`, { method: 'POST', headers, body: JSON.stringify({ claim_id: Number(claimId) }) });
+    loadPending();
+    loadUsers();
+  }
+
+  async function loadUsers() {
+    const res = await fetch('/api/premium/admin/users', { headers });
+    const body = document.getElementById('usersBody');
+    if (!res.ok) { body.innerHTML = '<tr><td colspan="6" class="empty">Not authorized.</td></tr>'; return; }
+    const d = await res.json();
+    const users = d.users || [];
+
+    if (!users.length) { body.innerHTML = '<tr><td colspan="6" class="empty">No users yet.</td></tr>'; return; }
+    body.innerHTML = users.map(u => {
+      const sub = u.subscription;
+      const status = u.is_admin ? 'admin' : (sub ? sub.status : 'none');
+      const label = u.is_admin ? 'Lifetime Access' : (sub ? sub.label : '—');
+      const expires = u.is_admin ? 'Never' : (sub ? fmtDate(sub.expires_at) : '—');
+      const ban = u.ban || { banned: false };
+      const banBadge = u.is_admin ? '' : (ban.banned
+        ? `<span class="badge banned">${ban.type === 'permanent' ? 'Permanent' : 'Temporary'}</span>`
+        : `<span class="badge none">none</span>`);
+      const actions = u.is_admin ? '' : `
+        <div class="row-actions">
+          ${ban.banned
+            ? `<button class="unban" onclick="unbanUser('${u.email}')">Unban</button>`
+            : `<button class="ban-temp" onclick="openBanModal('${u.email}', false)">Temp Ban</button>
+               <button class="ban-perm" onclick="openBanModal('${u.email}', true)">Permanent Ban</button>`
+          }
+          <button class="mail" onclick="document.getElementById('mailTo').value='${u.email}'; document.getElementById('mailTo').scrollIntoView({behavior:'smooth'});">Mail</button>
+        </div>
+      `;
+      return `
+        <tr>
+          <td><strong>${u.username || u.email}</strong><br><small style="color:#9d8fc9;">${u.email}</small></td>
+          <td>${label}</td>
+          <td><span class="badge ${status}">${status}</span></td>
+          <td>${expires}</td>
+          <td>${banBadge}</td>
+          <td>${actions}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  window.openBanModal = openBanModal;
+  window.unbanUser = unbanUser;
+
+  loadLiveStats();
+  loadPending();
+  loadUsers();
+  setInterval(loadLiveStats, 30000);
+})();
+</script>
+</body>
+</html>
