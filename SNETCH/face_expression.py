@@ -21,11 +21,42 @@ os.makedirs(WORK_DIR, exist_ok=True)
 
 MODEL_FOLDER = os.path.join(BASE_DIR, "models")
 YUNET_PATH = os.path.join(MODEL_FOLDER, "face_detection_yunet_2023mar.onnx")
-EMOTION_MODEL_PATH = os.path.join(MODEL_FOLDER, "best_model.pth")
+FACE_MODEL_DRIVE_ID = "18Dn9PhUHb6BNdu_HHjGLFDl_f_RtsTm-"
+FACE_MODEL_DRIVE_URL = f"https://drive.google.com/uc?export=download&id={FACE_MODEL_DRIVE_ID}"
+EMOTION_MODEL_PATH = os.path.join(MODEL_FOLDER, "face_model.pth")
 LABELS_PATH = os.path.join(MODEL_FOLDER, "labels.npy")
 
 CONFIDENCE_THRESHOLD = 0.5
 DEFAULT_CONF = 0.5  # used by handle_image / handle_video_start / handle_webcam_process_frame
+
+
+def resolve_emotion_model_path():
+    """Return whichever emotion model file exists, preferring the uploaded face_model.pth."""
+    global EMOTION_MODEL_PATH
+
+    candidates = [
+        os.path.join(MODEL_FOLDER, "face_model.pth"),
+        os.path.join(MODEL_FOLDER, "best_model.pth"),
+    ]
+
+    for candidate in candidates:
+        if os.path.isfile(candidate):
+            EMOTION_MODEL_PATH = candidate
+            return candidate
+
+    target_path = os.path.join(MODEL_FOLDER, "face_model.pth")
+    try:
+        import urllib.request
+
+        os.makedirs(MODEL_FOLDER, exist_ok=True)
+        urllib.request.urlretrieve(FACE_MODEL_DRIVE_URL, target_path)
+        if os.path.isfile(target_path):
+            EMOTION_MODEL_PATH = target_path
+            return target_path
+    except Exception:
+        pass
+
+    return target_path
 
 
 # ============================================================
@@ -138,21 +169,23 @@ if TORCH_OK:
 
 
 def get_emotion_model():
-    global _emotion_model, _DEVICE
+    global _emotion_model, _DEVICE, EMOTION_MODEL_PATH
     if not TORCH_OK:
         raise RuntimeError(
             "torch/timm not installed. Run: pip install torch timm"
         )
     with _emotion_model_lock:
         if _emotion_model is None:
-            if not os.path.isfile(EMOTION_MODEL_PATH):
+            model_path = resolve_emotion_model_path()
+            if not os.path.isfile(model_path):
                 raise RuntimeError(
-                    f"Emotion model not found at {EMOTION_MODEL_PATH}. "
-                    "Make sure best_model.pth is inside the models/ folder."
+                    f"Emotion model not found at {model_path}. "
+                    "Make sure face_model.pth or best_model.pth is inside the models/ folder."
                 )
+            EMOTION_MODEL_PATH = model_path
             _DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             model = EmotionSwin(num_classes=len(EMOTION_LABELS))
-            state_dict = torch.load(EMOTION_MODEL_PATH, map_location=_DEVICE)
+            state_dict = torch.load(model_path, map_location=_DEVICE)
             model.load_state_dict(state_dict, strict=True)
             model.eval()
             model.to(_DEVICE)

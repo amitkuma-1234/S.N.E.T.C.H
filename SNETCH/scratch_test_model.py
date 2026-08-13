@@ -1,9 +1,24 @@
+import os
 import torch
-try:
-    model = torch.load("models/best_model.pth", map_location='cpu')
-    print("Type:", type(model))
-    if isinstance(model, dict):
-        print("Keys:", model.keys())
-    print("Success loading best_model.pth")
-except Exception as e:
-    print("Error loading:", e)
+
+model_paths = [
+    os.path.join("models", "face_model.pth"),
+    os.path.join("models", "best_model.pth"),
+]
+
+for path in model_paths:
+    if os.path.exists(path):
+        try:
+            model = torch.load(path, map_location='cpu')
+            print(f"Loaded: {path}")
+            print("Type:", type(model))
+            if isinstance(model, dict):
+                print("Keys:", list(model.keys())[:5])
+            print("Success loading model")
+            break
+        except Exception as e:
+            print(f"Error loading {path}: {e}")
+    else:
+        print(f"Missing: {path}")
+else:
+    print("No emotion model found in models/ folder")
